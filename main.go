@@ -10,6 +10,9 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	"github.com/go-playground/form/v4"
+	"github.com/go-playground/validator/v10"
 )
 
 func padding(src []byte, blocksize int) []byte {
@@ -442,4 +445,23 @@ func WrapWithLabel(data []string, leftLabel string, rightLabel string) string {
 		}),
 		"",
 	)
+}
+
+// ParseFormReq 从 req 中提取
+func ParseFormReq[T any](value url.Values, parsedReq *T) error {
+	decoder := form.NewDecoder()
+	if err := decoder.Decode(&parsedReq, value); err != nil {
+		return fmt.Errorf("params parse failed")
+	}
+
+	// struct 才需要 validate
+	if reflect.TypeOf(parsedReq).Elem().Kind() != reflect.Struct {
+		return nil
+	}
+	validate := validator.New()
+	if err := validate.Struct(parsedReq); err != nil {
+		return fmt.Errorf("params validate failed")
+	}
+
+	return nil
 }

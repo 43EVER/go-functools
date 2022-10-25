@@ -1,6 +1,7 @@
 package gofunctools_test
 
 import (
+	"net/url"
 	"reflect"
 	"testing"
 
@@ -343,6 +344,61 @@ func TestFindMin(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := gofunctools.Min(tt.args.lessFunc, tt.args.data...); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("FindMin() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParseFormReq(t *testing.T) {
+	type Req struct {
+		Required string `validate:"required"`
+		Optional string `form:",omitempty" validate:"omitempty,min=1"`
+	}
+
+	type args struct {
+		value     url.Values
+		parsedReq *Req
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			"normal",
+			args{
+				value: url.Values{
+					"Required": []string{"1"},
+					"Optional": []string{"1"},
+				},
+				parsedReq: &Req{},
+			},
+			false,
+		},
+		{
+			"miss optional",
+			args{
+				value: url.Values{
+					"Required": []string{"1"},
+				},
+				parsedReq: &Req{},
+			},
+			false,
+		},
+		{
+			"miss required",
+			args{
+				value:     url.Values{},
+				parsedReq: &Req{},
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := gofunctools.ParseFormReq(tt.args.value, tt.args.parsedReq); (err != nil) != tt.wantErr {
+				t.Errorf("ParseFormReq() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
