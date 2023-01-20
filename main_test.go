@@ -113,11 +113,9 @@ func TestAndSlice(t *testing.T) {
 		return
 	}
 
-	for idx, wantItem := range want {
-		if wantItem != got[idx] {
-			t.Errorf("%d th item should be %d, got %d", idx, want, got)
-			return
-		}
+	if SliceEqualHelper(want, got) == false {
+		t.Errorf("want %v, got %v", want, got)
+		return
 	}
 }
 
@@ -137,6 +135,37 @@ func TestSubSlice(t *testing.T) {
 			t.Errorf("%d th item should be %d, got %d", idx, want, got)
 			return
 		}
+	}
+}
+
+func SliceEqualHelper(want, got []int) bool {
+	vis := map[int]bool{}
+	for _, wantItem := range want {
+		for _, gotItem := range got {
+			if wantItem == gotItem {
+				vis[wantItem] = true
+			}
+		}
+	}
+
+	return len(vis) == len(want)
+
+}
+
+func TestOrSlice(t *testing.T) {
+	a := []int{1, 2, 3}
+	b := []int{2, 3, 4}
+
+	want := []int{1, 2, 3, 4}
+	got := gofunctools.OrSlice(a, b)
+	if len(want) != len(got) {
+		t.Errorf("want %d items slice, got %d", len(want), len(got))
+		return
+	}
+
+	if SliceEqualHelper(want, got) == false {
+		t.Errorf("want %v, got %v", want, got)
+		return
 	}
 }
 

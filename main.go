@@ -353,6 +353,23 @@ func SubSlice[T comparable](a []T, b []T) []T {
 	return keys
 }
 
+// OrSlice 对两个 Slice 取并集，时间复杂度为O(N+M)，N为a的长度，M为b的长度
+func OrSlice[T comparable](a []T, b []T) []T {
+	resultMap := make(map[T]bool)
+	for _, item := range a {
+		resultMap[item] = true
+	}
+	for _, item := range b {
+		resultMap[item] = true
+	}
+
+	keys := make([]T, 0, len(resultMap))
+	for k := range resultMap {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
 // PhoneMasking 电话脱敏，前后保留两位，其他全部省略
 func PhoneMasking(phone string) string {
 	str := []rune(phone)
